@@ -390,6 +390,4 @@ COGNIVUE was developed for the HNX26PSI01 Multimodal Document Intelligence probl
 - **HNX26PSI01 — Multimodal Document Intelligence**
 - Repository: https://github.com/melbavarghesecbe-svg/cognivue
 
-## License
 
-Add the project license here before public distribution.
