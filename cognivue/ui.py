@@ -17,10 +17,12 @@ from .schema import Answer, Element, Result
 
 
 def inject_styles() -> None:
-    """Inject clean SaaS design tokens, layout normalization, and suppress default Streamlit chrome."""
+    """Inject clean luxury editorial design tokens matching reference design."""
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
         /* 1. Global Streamlit Chrome Suppression */
         #MainMenu,
         header[data-testid="stHeader"],
@@ -36,30 +38,37 @@ def inject_styles() -> None:
             margin: 0 !important;
         }
 
-        /* 2. Base Typography & Palette */
+        /* 2. Base Typography & Warm Cream Palette */
         html, body, [data-testid="stAppViewContainer"] {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif !important;
-            background-color: #fafaf9 !important;
-            color: #111827 !important;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            background-color: #FAF7F2 !important;
+            background-image: 
+                radial-gradient(circle at -4% 102%, #4E0F1B 0%, #4E0F1B 15%, transparent 15.5%),
+                radial-gradient(circle at -2% 102%, rgba(138, 58, 72, 0.22) 0%, rgba(138, 58, 72, 0.22) 25%, transparent 25.5%),
+                radial-gradient(circle at 1% 1%, rgba(228, 214, 200, 0.45) 0%, rgba(228, 214, 200, 0.45) 28%, transparent 28.5%),
+                radial-gradient(circle at 105% 102%, rgba(228, 214, 200, 0.45) 0%, rgba(228, 214, 200, 0.45) 24%, transparent 24.5%) !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+            color: #1E1815 !important;
             -webkit-font-smoothing: antialiased;
             letter-spacing: -0.01em;
         }
 
         /* 3. Main Container Spacing */
         .main .block-container {
-            padding-top: 2rem !important;
+            padding-top: 1.5rem !important;
             padding-bottom: 3.5rem !important;
             padding-left: 2.5rem !important;
             padding-right: 2.5rem !important;
             max-width: 1160px !important;
         }
 
-        /* 4. Sidebar Shell */
+        /* 4. Sidebar Shell - Warm Linen */
         [data-testid="stSidebar"] {
-            min-width: 250px !important;
-            max-width: 265px !important;
-            background-color: #f7f7f6 !important;
-            border-right: 1px solid #eaebed !important;
+            min-width: 260px !important;
+            max-width: 275px !important;
+            background-color: #F7F2EB !important;
+            border-right: 1px solid #EBE4DC !important;
         }
         [data-testid="stSidebar"] > div:first-child {
             padding-top: 1.25rem !important;
@@ -67,58 +76,64 @@ def inject_styles() -> None:
             padding-right: 1rem !important;
         }
         [data-testid="stSidebarCollapseButton"] {
-            color: #64748b !important;
+            color: #6E625E !important;
         }
 
         /* 5. Brand Header in Sidebar */
         .brand-container {
             padding: 0.25rem 0.25rem 1.1rem 0.25rem;
-            border-bottom: 1px solid #eaebed;
+            border-bottom: 1px solid #EBE4DC;
             margin-bottom: 1rem;
         }
         .brand-name {
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             letter-spacing: 0.08em;
-            color: #0f172a;
+            color: #50101C;
             line-height: 1.2;
         }
         .brand-tagline {
-            font-size: 11px;
-            font-weight: 500;
-            color: #64748b;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 13px;
+            font-weight: 600;
+            color: #50101C;
             margin-top: 3px;
-            letter-spacing: 0.01em;
+            letter-spacing: 0.02em;
         }
 
         /* 6. Sidebar Navigation Items */
         div[data-testid="stSidebar"] div[data-testid="stRadio"] > div {
-            gap: 0.2rem !important;
+            gap: 0.25rem !important;
         }
         div[data-testid="stSidebar"] div[data-testid="stRadio"] label {
-            border-radius: 6px !important;
-            padding: 0.42rem 0.75rem !important;
-            font-size: 13px !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 0.85rem !important;
+            font-size: 13.5px !important;
             font-weight: 500 !important;
-            color: #4b5563 !important;
+            color: #5A4F4A !important;
             cursor: pointer !important;
             display: flex !important;
             align-items: center !important;
             border: 1px solid transparent !important;
-            transition: all 0.12s ease !important;
+            transition: all 0.15s ease !important;
             margin: 0 !important;
+            background: transparent !important;
         }
         div[data-testid="stSidebar"] div[data-testid="stRadio"] label:hover {
-            background-color: #edecea !important;
-            color: #111827 !important;
+            background-color: #EBE4DC !important;
+            color: #1E1815 !important;
         }
         div[data-testid="stSidebar"] div[data-testid="stRadio"] label[data-checked="true"],
         div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
+            background-color: #50101C !important;
+            color: #FFFFFF !important;
             font-weight: 600 !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(80, 16, 28, 0.25) !important;
+        }
+        div[data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) * {
+            color: #FFFFFF !important;
         }
         div[data-testid="stSidebar"] div[data-testid="stRadio"] input[type="radio"] {
             display: none !important;
@@ -129,77 +144,200 @@ def inject_styles() -> None:
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
-            color: #64748b;
-            margin: 1.2rem 0 0.5rem 0.25rem;
+            letter-spacing: 0.08em;
+            color: #8C7E75;
+            margin: 1.25rem 0 0.5rem 0.25rem;
         }
 
         /* 8. Modern Buttons */
         .stButton > button {
-            border-radius: 6px !important;
+            border-radius: 8px !important;
             font-weight: 500 !important;
-            font-size: 13px !important;
+            font-size: 13.5px !important;
             letter-spacing: -0.01em !important;
-            transition: all 0.12s ease-in-out !important;
-            border: 1px solid #d1d5db !important;
-            background-color: #ffffff !important;
-            color: #111827 !important;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
-            padding: 0.42rem 0.85rem !important;
+            transition: all 0.15s ease-in-out !important;
+            border: 1px solid #D6CBC1 !important;
+            background-color: #FFFFFF !important;
+            color: #1E1815 !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+            padding: 0.45rem 0.95rem !important;
         }
         .stButton > button:hover {
-            background-color: #f3f4f6 !important;
-            border-color: #9ca3af !important;
-            color: #111827 !important;
+            background-color: #F7F2EB !important;
+            border-color: #50101C !important;
+            color: #50101C !important;
         }
         .stButton > button[kind="primary"] {
-            background-color: #0f172a !important;
-            color: #ffffff !important;
-            border: 1px solid #0f172a !important;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+            background-color: #50101C !important;
+            color: #FFFFFF !important;
+            border: 1px solid #50101C !important;
+            box-shadow: 0 2px 8px rgba(80, 16, 28, 0.25) !important;
+            font-weight: 600 !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background-color: #1e293b !important;
-            border-color: #1e293b !important;
-            color: #ffffff !important;
+            background-color: #3D0B14 !important;
+            border-color: #3D0B14 !important;
+            color: #FFFFFF !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 14px rgba(80, 16, 28, 0.35) !important;
         }
 
         /* 9. Inputs & Form Controls */
         .stTextInput input {
-            border-radius: 6px !important;
-            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            border: 1px solid #D6CBC1 !important;
             font-size: 13.5px !important;
-            background-color: #ffffff !important;
-            color: #111827 !important;
-            padding: 0.55rem 0.85rem !important;
+            background-color: #FFFFFF !important;
+            color: #1E1815 !important;
+            padding: 0.6rem 0.9rem !important;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
         }
         .stTextInput input:focus {
-            border-color: #2563eb !important;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+            border-color: #50101C !important;
+            box-shadow: 0 0 0 2px rgba(80, 16, 28, 0.15) !important;
         }
         div[data-baseweb="select"] > div {
-            border-radius: 6px !important;
-            border: 1px solid #d1d5db !important;
-            background-color: #ffffff !important;
+            border-radius: 8px !important;
+            border: 1px solid #D6CBC1 !important;
+            background-color: #FFFFFF !important;
             font-size: 13px !important;
         }
 
-        /* 10. File Uploader SaaS Customization */
+        /* 10. File Uploader */
         [data-testid="stFileUploader"] {
-            background-color: #ffffff;
-            border: 1px dashed #d1d5db;
-            border-radius: 6px;
+            background-color: #FFFFFF;
+            border: 1px dashed #D6CBC1;
+            border-radius: 8px;
             padding: 0.4rem 0.5rem;
         }
         [data-testid="stFileUploader"]:hover {
-            border-color: #9ca3af;
+            border-color: #50101C;
         }
         [data-testid="stFileUploader"] section {
             padding: 0.4rem !important;
         }
 
-        /* 11. View Header Elements */
+        /* Toggle switch */
+        div[data-testid="stToggle"] [aria-checked="true"] {
+            background-color: #50101C !important;
+        }
+
+        /* 11. Reference Design Hero & Layout */
+        .top-nav-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.75rem;
+        }
+        .top-nav-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6E625E;
+        }
+        .top-nav-divider {
+            color: #D6CBC1;
+        }
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #50101C;
+            color: #FFFFFF;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .hero-container {
+            text-align: center;
+            margin: 0.5rem auto 2.25rem auto;
+            max-width: 800px;
+        }
+        .hero-eyebrow-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 0.4rem;
+        }
+        .hero-eyebrow-line {
+            height: 1px;
+            width: 70px;
+            background: #D6CBC1;
+        }
+        .hero-eyebrow-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: #7D716A;
+            text-transform: uppercase;
+        }
+        .hero-title {
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #50101C;
+            margin: 0.15rem 0 0.15rem 0;
+            line-height: 1.05;
+        }
+        .hero-tagline {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 28px;
+            font-weight: 600;
+            color: #50101C;
+            margin: 0 0 0.75rem 0;
+        }
+        .hero-description {
+            font-size: 14.5px;
+            color: #6E625E;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .floating-query-card {
+            background: #FFFFFF;
+            border: 1px solid #EBE4DC;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 4px 24px rgba(80, 16, 28, 0.04);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-dropzone-card {
+            border: 1.5px dashed #D6CBC1;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem auto;
+            max-width: 680px;
+        }
+        .dropzone-icon {
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+        }
+        .dropzone-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1E1815;
+            margin-bottom: 0.25rem;
+        }
+        .dropzone-sub {
+            font-size: 13px;
+            color: #6E625E;
+            margin-bottom: 0.2rem;
+        }
+        .dropzone-caption {
+            font-size: 11px;
+            color: #8C7E75;
+            margin-bottom: 1.25rem;
+        }
+
+        /* 12. View Header Elements */
         .view-header {
             margin-bottom: 1.5rem;
         }
@@ -208,20 +346,20 @@ def inject_styles() -> None:
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.07em;
-            color: #64748b;
+            color: #8C7E75;
             margin-bottom: 0.35rem;
         }
         .view-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
             letter-spacing: -0.02em;
-            color: #0f172a;
+            color: #50101C;
             margin: 0 0 0.35rem 0;
             line-height: 1.3;
         }
         .view-subtitle {
             font-size: 13px;
-            color: #64748b;
+            color: #6E625E;
             margin: 0;
             line-height: 1.5;
         }

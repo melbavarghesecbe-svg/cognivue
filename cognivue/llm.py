@@ -56,7 +56,11 @@ class GeminiProvider:
         resp = self._get_client().models.generate_content(
             model=self.name,
             contents=parts,
-            config=types.GenerateContentConfig(temperature=0, response_mime_type="application/json"),
+            config=types.GenerateContentConfig(
+                temperature=0,
+                response_mime_type="application/json",
+                http_options=types.HttpOptions(timeout=120_000),  # 120 s
+            ),
         )
         return resp.text or ""
 
@@ -153,9 +157,13 @@ class LLM:
         for attempt in range(self.retries):
             try:
                 raw = provider.generate(full, images)
-            except Exception as e:  # network/quota errors from the SDK
+            except Exception as e:  # network/quota/overload errors from the SDK
                 last = f"{type(e).__name__}: {e}"
-                time.sleep(self.backoff_s * (2**attempt))
+                # ResourceExhausted (429 / overloaded) → longer wait before retry
+                err_str = str(e).lower()
+                is_overloaded = any(k in err_str for k in ("resource_exhausted", "429", "overloaded", "quota"))
+                wait = self.backoff_s * (4**attempt) if is_overloaded else self.backoff_s * (2**attempt)
+                time.sleep(min(wait, 60.0))  # cap at 60 s
                 continue
             try:
                 return schema.model_validate_json(extract_json(raw))

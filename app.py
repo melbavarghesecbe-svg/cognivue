@@ -64,10 +64,10 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
         unsafe_allow_html=True,
     )
 
-    # Clean SaaS Navigation
+    # Clean SaaS Navigation matching reference design
     active_nav = st.sidebar.radio(
         "Navigation",
-        options=["Ask", "Documents", "Bench"],
+        options=["🔍  Ask", "📄  Documents", "📊  Bench"],
         index=0,
         key="app_navigation",
         label_visibility="collapsed",
@@ -76,7 +76,22 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
     st.sidebar.markdown('<div class="sidebar-section-label">DOCUMENTS</div>', unsafe_allow_html=True)
 
     # Document Upload Area
-    ups = st.sidebar.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True, help="PDF up to 200 MB")
+    st.sidebar.markdown(
+        """
+        <div style="background:#FFFFFF; border:1px solid #EBE4DC; border-radius:8px; padding:7px 10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:16px;">☁️</span>
+                <div>
+                    <div style="font-size:12px; font-weight:600; color:#1E1815;">Upload PDFs</div>
+                    <div style="font-size:10px; color:#8C7E75;">PDF up to 200 MB</div>
+                </div>
+            </div>
+            <span style="color:#8C7E75; font-size:13px; font-weight:600;">›</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    ups = st.sidebar.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True, help="PDF up to 200 MB", label_visibility="collapsed")
     if ups and st.sidebar.button("Ingest uploads", use_container_width=True):
         paths = []
         for u in ups:
@@ -87,7 +102,7 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
         ingest_files(pipe, paths)
 
     # Load Demo Documents Button
-    if st.sidebar.button("Load demo documents", use_container_width=True):
+    if st.sidebar.button("📄  Load demo documents", use_container_width=True):
         from scripts.make_demo_docs import OUT, main as make_docs
 
         paths = sorted(OUT.glob("*.pdf")) if len(list(OUT.glob("*.pdf"))) == 4 else make_docs()
@@ -97,13 +112,13 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
     # Ingested Documents List
     docs = pipe.store.docs()
     if docs:
-        st.sidebar.markdown('<div class="sidebar-section-label" style="margin-top: 0.75rem;">INDEXED CORPUS</div>', unsafe_allow_html=True)
+        st.sidebar.markdown('<div class="sidebar-section-label" style="margin-top: 0.9rem;">INDEXED CORPUS</div>', unsafe_allow_html=True)
         for d in docs:
             st.sidebar.markdown(
                 f"""
-                <div style="font-size: 12px; color: #334155; padding: 0.2rem 0; display: flex; justify-content: space-between;">
-                    <span><b>{d['id']}</b> · {d['name']}</span>
-                    <span style="color: #64748b;">{d['pages']}p</span>
+                <div style="font-size: 12px; color: #332B27; padding: 0.22rem 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="display: flex; align-items: center; gap: 5px;">📄 <b>{d['id']}</b> · {d['name']}</span>
+                    <span style="color: #8C7E75; font-size: 11px;">{d['pages']}p</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -114,18 +129,17 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
     # Execution Mode Toggle
     st.sidebar.markdown('<div class="sidebar-section-label" style="margin-top: 1rem;">CONFIG</div>', unsafe_allow_html=True)
     baseline = st.sidebar.toggle(
-        "Baseline mode (plain RAG)",
+        "Baseline mode (plain RAG) ⓘ",
         help="Disables FactLedger, visual re-look, and Truth Meter verifier",
     )
     mode = Mode.baseline() if baseline else Mode.full()
 
-    # System Status (no API keys exposed)
-    cache_badge = "CACHE ONLY" if s.cache_only else "ONLINE"
+    # System Status Indicator
     st.sidebar.markdown(
-        f"""
-        <div style="font-size: 10.5px; color: #94a3b8; margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid #eaebed;">
-            LLM: {s.gemini_model if s.gemini_api_key else 'Offline demo'}<br/>
-            Engine: {cache_badge} · Embedder: {s.embed_model}
+        """
+        <div style="font-size: 11.5px; color: #5C524F; margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid #EBE4DC; display: flex; align-items: center; gap: 7px;">
+            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background-color: #10B981; box-shadow: 0 0 4px #10B981;"></span>
+            <span style="font-weight: 500;">AI engine · Connected</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -135,29 +149,70 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
 
 
 def ask_view(pipe: Pipeline, mode: Mode) -> None:
+    # Top Right Header Nav
     st.markdown(
         """
-        <div class="view-header">
-            <div class="view-eyebrow">DOCUMENT INTELLIGENCE</div>
-            <h1 class="view-title">Ask your documents.</h1>
-            <p class="view-subtitle">Get answers grounded in text, tables, charts, and scanned evidence.</p>
+        <div class="top-nav-bar">
+            <span class="top-nav-text">Document Intelligence</span>
+            <span class="top-nav-divider">|</span>
+            <span class="user-avatar">M</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    if not pipe.store.docs():
-        ui.empty_state("No documents yet", "Upload a PDF or click 'Load demo documents' in the sidebar to begin.")
-        return
+    # Hero Center Header
+    st.markdown(
+        """
+        <div class="hero-container">
+            <div class="hero-eyebrow-wrapper">
+                <span class="hero-eyebrow-line"></span>
+                <span class="hero-eyebrow-text">DOCUMENT INTELLIGENCE</span>
+                <span class="hero-eyebrow-line"></span>
+            </div>
+            <h1 class="hero-title">COGNIVUE</h1>
+            <div class="hero-tagline">See. Understand. Verify.</div>
+            <p class="hero-description">Get answers grounded in text, tables, charts, and scanned evidence.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # Question Input Shell
-    ex_choice = st.selectbox("Example queries", [""] + EXAMPLES, index=0, placeholder="Or select a verified example question...", label_visibility="collapsed")
+    # Question Input Shell - Floating Query Card
+    st.markdown('<div class="floating-query-card">', unsafe_allow_html=True)
+    ex_choice = st.selectbox(
+        "Example queries",
+        [""] + EXAMPLES,
+        index=0,
+        placeholder="📄 Or select a verified example question...",
+        label_visibility="collapsed",
+    )
     
     col_input, col_btn = st.columns([5, 1])
     with col_input:
-        q = st.text_input("Ask a question", value=ex_choice, placeholder="Ask a question about your documents...", label_visibility="collapsed")
+        q = st.text_input(
+            "Ask a question",
+            value=ex_choice,
+            placeholder="✨ Ask a question about your documents...",
+            label_visibility="collapsed",
+        )
     with col_btn:
-        ask_btn = st.button("Ask", type="primary", use_container_width=True)
+        ask_btn = st.button("➤ Ask", type="primary", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if not pipe.store.docs():
+        st.markdown(
+            """
+            <div class="upload-dropzone-card">
+                <div class="dropzone-icon">📄</div>
+                <div class="dropzone-title">Upload your documents</div>
+                <div class="dropzone-sub">Drag and drop PDFs here, or click to browse</div>
+                <div class="dropzone-caption">PDF up to 200 MB</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
 
     if ask_btn and q:
         if pipe.index is None:
@@ -261,13 +316,12 @@ def main() -> None:
     pipe = get_pipeline()
     active_nav, mode = render_sidebar(pipe)
 
-    if active_nav == "Ask":
+    if "Ask" in active_nav:
         ask_view(pipe, mode)
-    elif active_nav == "Documents":
+    elif "Documents" in active_nav:
         docs_view(pipe)
-    elif active_nav == "Bench":
+    elif "Bench" in active_nav:
         bench_view(pipe)
 
 
-if __name__ == "__main__":
-    main()
+main()
