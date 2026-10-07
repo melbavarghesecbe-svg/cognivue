@@ -49,26 +49,26 @@ The goal is not to make AI sound confident. The goal is to make AI show its work
 
 | Capability | Status | What is available |
 |---|---|---|
-| Multimodal PDF ingestion | ✅ Implemented | Native text, tables, figures, and scanned-page handling |
-| Stable evidence elements | ✅ Implemented | Document, page, element, modality, source path, and quality metadata |
-| Document triage | ✅ Implemented | Native, mixed, and scanned page classification with quality signals |
-| OCR processing | ✅ Implemented | OpenCV preprocessing and RapidOCR for scan content |
-| ChartLens visual extraction | ✅ Implemented | Gemini-assisted chart analysis with extracted visual metadata |
-| FactLedger | ✅ Implemented | SQLite storage for normalized facts from text and tables |
-| Hybrid retrieval | ✅ Implemented | FastEmbed/ChromaDB, BM25, and reciprocal-rank fusion |
-| Cross-document evidence packs | ✅ Implemented | Retrieval preserves source and page context across documents |
-| Question planning | ✅ Implemented | Complex questions are decomposed into retrieval sub-questions |
-| Multimodal reasoning | ✅ Implemented | Gemini receives retrieved text and relevant visual evidence |
-| Numbers with Receipts | ✅ Implemented | Python calculations with inputs, formulas, results, and source IDs |
-| Claim verification | ✅ Implemented | Evidence IDs, quotes, numbers, and entailment checks |
-| Truth Meter signals | ✅ Implemented | Confidence, verification, conflict, and support information |
-| Conflict detection | ✅ Implemented | Disagreement between relevant evidence is surfaced |
-| Premise Guard | ✅ Implemented | False or inconsistent premises are challenged |
-| Grounded refusal | ✅ Implemented | Unsupported questions receive an evidence-based refusal |
-| Evidence viewer | ✅ Implemented | Documents, pages, extracted elements, and facts can be inspected |
-| ProofGraph | ✅ Implemented | UI trace of question, evidence, calculations, and answer |
-| Benchmark and baseline mode | ✅ Implemented | Labelled questions can run in full and baseline modes |
-| Chart/text cross-checking | 🔮 Planned / Stretch | A future comparison layer for independent modality disagreement |
+| Multimodal PDF ingestion |  Implemented | Native text, tables, figures, and scanned-page handling |
+| Stable evidence elements |  Implemented | Document, page, element, modality, source path, and quality metadata |
+| Document triage |  Implemented | Native, mixed, and scanned page classification with quality signals |
+| OCR processing |  Implemented | OpenCV preprocessing and RapidOCR for scan content |
+| ChartLens visual extraction |  Implemented | Gemini-assisted chart analysis with extracted visual metadata |
+| FactLedger |  Implemented | SQLite storage for normalized facts from text and tables |
+| Hybrid retrieval |  Implemented | FastEmbed/ChromaDB, BM25, and reciprocal-rank fusion |
+| Cross-document evidence packs |  Implemented | Retrieval preserves source and page context across documents |
+| Question planning |  Implemented | Complex questions are decomposed into retrieval sub-questions |
+| Multimodal reasoning | Implemented | Gemini receives retrieved text and relevant visual evidence |
+| Numbers with Receipts |  Implemented | Python calculations with inputs, formulas, results, and source IDs |
+| Claim verification |  Implemented | Evidence IDs, quotes, numbers, and entailment checks |
+| Truth Meter signals |  Implemented | Confidence, verification, conflict, and support information |
+| Conflict detection |  Implemented | Disagreement between relevant evidence is surfaced |
+| Premise Guard |  Implemented | False or inconsistent premises are challenged |
+| Grounded refusal |  Implemented | Unsupported questions receive an evidence-based refusal |
+| Evidence viewer |  Implemented | Documents, pages, extracted elements, and facts can be inspected |
+| ProofGraph |  Implemented | UI trace of question, evidence, calculations, and answer |
+| Benchmark and baseline mode |  Implemented | Labelled questions can run in full and baseline modes |
+| Chart/text cross-checking |  Planned / Stretch | A future comparison layer for independent modality disagreement |
 
 ## Architecture
 
