@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
-    gemini_fallback_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-3.5-flash"
+    gemini_fallback_model: str = "gemini-3.1-flash-lite"
     cache_only: bool = False
     llm_retries: int = 3
     llm_backoff_s: float = 2.0
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     cache_dir: Path = ROOT / "cache" / "llm"  # committed so CACHE_ONLY demos work offline
 
     embed_model: str = "BAAI/bge-small-en-v1.5"
-    top_k: int = 6
+    top_k: int = 8
     min_retrieval_score: float = 0.35
     ocr_min_conf: float = 0.80
 

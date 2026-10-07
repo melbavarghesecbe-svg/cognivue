@@ -780,15 +780,33 @@ def highlight(page_png: str, bbox, color=(220, 38, 38)) -> Image.Image:
     return img
 
 
+def _clean_error(msg: str) -> str:
+    """Strip raw API JSON/stack traces from refusal reasons for clean UX."""
+    if not msg:
+        return "No supporting evidence found in the ingested documents."
+    # If it's a giant JSON blob or API error, show a short friendly message
+    if any(k in msg for k in ("RESOURCE_EXHAUSTED", "429", "ClientError", "quota", "API key", "NOT_FOUND", "no longer available")):
+        if "quota" in msg.lower() or "RESOURCE_EXHAUSTED" in msg:
+            return "⚠️ The AI model is currently overloaded or your quota is exceeded. Please wait a moment and try again."
+        if "no longer available" in msg or "NOT_FOUND" in msg:
+            return "⚠️ The configured AI model is unavailable. Please check your GEMINI_MODEL setting in .env."
+        return "⚠️ An AI API error occurred. Please retry your question."
+    # Trim very long error blobs
+    if len(msg) > 300:
+        return msg[:300].rsplit(" ", 1)[0] + "…"
+    return msg
+
+
 def answer_card(res: Result) -> None:
     """Render the primary answer card with confidence and sources breakdown."""
     a: Answer = res.answer
     if a.refused:
+        clean_reason = _clean_error(a.refusal_reason or "")
         st.markdown(
             f"""
             <div class="refusal-card">
                 <div class="refusal-badge">Refused by Truth Meter</div>
-                <div class="refusal-reason">{a.refusal_reason or 'No supporting evidence found in the ingested documents.'}</div>
+                <div class="refusal-reason">{clean_reason}</div>
             </div>
             """,
             unsafe_allow_html=True,

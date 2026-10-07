@@ -21,6 +21,8 @@ class Plan(BaseModel):
 
 PLAN_PROMPT = (
     "Split the user question into 1-4 short self-contained retrieval sub-questions (one per fact needed). "
+    "If the question references documents (e.g. 'Document A', 'Document B', 'Doc 1', 'Doc 2'), preserve or clarify "
+    "these document references in the sub-questions. "
     "Also list any numeric facts the question ASSUMES to be true (premises), e.g. 'Why did revenue fall to "
     "Rs 900 crore in FY24?' assumes {metric: 'revenue', period: 'FY24', value_text: 'Rs 900 crore'}. "
     "Leave premises empty if none.\n\nQUESTION: "
@@ -45,10 +47,17 @@ def build_pack(index: Index, question: str, sub_questions: list[str], k: int, mi
                 best[h.id] = h
     ranked = sorted(best.values(), key=lambda h: (-h.rrf, -h.dense))
     pack = ranked[:k]
+    pack_ids = {h.id for h in pack}
+    # Keep high-relevance tables/figures so numerical proof is not crowded out
+    for h in ranked[k : k + 4]:
+        if ("-T" in h.id or "-F" in h.id) and max(h.dense, h.bm25) >= min_score and h.id not in pack_ids:
+            pack.append(h)
+            pack_ids.add(h.id)
     covered = {index.doc_of[h.id] for h in pack}
     for h in ranked[k:]:
         doc = index.doc_of[h.id]
-        if doc not in covered and max(h.dense, h.bm25) >= min_score:
+        if doc not in covered and max(h.dense, h.bm25) >= min_score and h.id not in pack_ids:
             pack.append(h)
             covered.add(doc)
+            pack_ids.add(h.id)
     return pack

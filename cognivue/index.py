@@ -15,8 +15,32 @@ Embedder = Callable[[list[str]], list[list[float]]]
 RRF_K = 60
 
 
+MONTH_SYNONYMS: dict[str, str] = {
+    "january": "jan", "february": "feb", "march": "mar", "april": "apr", "june": "jun",
+    "july": "jul", "august": "aug", "september": "sep", "october": "oct", "november": "nov", "december": "dec",
+    "jan": "january", "feb": "february", "mar": "march", "apr": "april", "jun": "june",
+    "jul": "july", "aug": "august", "sep": "september", "oct": "october", "nov": "november", "dec": "december",
+}
+
+
+def doc_alias(doc_id: str) -> str:
+    """Map D1 -> Document A / Doc 1, D2 -> Document B / Doc 2, etc."""
+    try:
+        num = int(doc_id.replace("D", ""))
+        letter = chr(64 + num) if 1 <= num <= 26 else ""
+        return f"Document {letter} Doc {num} Document {num}".strip()
+    except Exception:
+        return ""
+
+
 def tokenize(text: str) -> list[str]:
-    return re.findall(r"[a-z0-9]+", text.lower())
+    toks = re.findall(r"[a-z0-9]+", text.lower())
+    res = []
+    for t in toks:
+        res.append(t)
+        if t in MONTH_SYNONYMS:
+            res.append(MONTH_SYNONYMS[t])
+    return res
 
 
 def hash_embedder(texts: list[str], dim: int = 256) -> list[list[float]]:
@@ -50,7 +74,8 @@ def load_embedder(settings, trace: Optional[list] = None) -> tuple[Embedder, str
 
 
 def index_text(e: Element) -> str:
-    return f"{e.section}\n{e.text}"
+    alias = doc_alias(e.doc_id)
+    return f"{e.doc_id} {alias} {e.doc_name} {e.section}\n{e.text}".strip()
 
 
 @dataclass

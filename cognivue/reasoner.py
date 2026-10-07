@@ -41,23 +41,37 @@ RULES = """You answer questions ONLY from the evidence below. Rules:
 2. 'quote' is a short verbatim span from the first cited element that supports the claim.
 3. NEVER do arithmetic. If a number must be computed, declare 'variables' (name, cite, value_text copied
    exactly from the cited element) and 'calcs' (name, expr using variable names, + - * / and
-   pct_change(old,new), cagr(start,end,years), round, abs, min, max). Write the result in the answer and
-   claims as a {calc_name} placeholder; Python fills it in.
+   pct_change(old,new), cagr(start,end,years), round, abs, min, max; note: pct_change and cagr already return percentages, do NOT multiply by 100 again).
+   Write the result in the answer and claims as a {calc_name} placeholder; Python fills it in.
 4. If evidence is missing or the question cannot be answered, set sufficient=false and explain in 'missing'.
 5. If sources disagree, state both values with their citations; do not pick one.
 6. Values read from charts are estimates; say "approximately".
-7. Images attached are the original table/chart crops for the IDs shown; use them to re-check values."""
+7. Images attached are the original table/chart crops for the IDs shown; use them to re-check values.
+8. Resolve document references: D1 corresponds to Document A / Document 1; D2 corresponds to Document B / Document 2, etc. If the question asks 'According to Document B', cite and answer from D2 evidence."""
 
 
 def evidence_block(pack: list[Element], facts: list[Fact]) -> str:
+    from .index import doc_alias
+
+    doc_summary = []
+    seen_docs = set()
+    for e in pack:
+        if e.doc_id not in seen_docs:
+            seen_docs.add(e.doc_id)
+            alias = doc_alias(e.doc_id)
+            doc_summary.append(f"- {e.doc_id} / {alias}: {e.doc_name}")
+    prefix = ("INDEXED DOCUMENTS:\n" + "\n".join(doc_summary) + "\n\n") if doc_summary else ""
+
     lines = []
     for e in pack:
         tag = {"figure": "CHART (estimated values)", "table": "TABLE", "scan": "SCANNED TEXT"}.get(e.kind, "TEXT")
-        lines.append(f"[{e.id}] {tag} | {e.doc_name} p.{e.page} | section: {e.section}\n{e.text}")
+        alias_short = doc_alias(e.doc_id).split()[0:2]
+        alias_lbl = f"{e.doc_id} ({' '.join(alias_short)})" if alias_short else e.doc_id
+        lines.append(f"[{e.id}] {tag} | {alias_lbl} {e.doc_name} p.{e.page} | section: {e.section}\n{e.text}")
     if facts:
         lines.append("LEDGER FACTS (normalised, base units):")
         lines += [f"- {f.metric} {f.period}: {f.raw} (source {f.source_id}{', estimated' if f.estimated else ''})" for f in facts]
-    return "\n\n".join(lines)
+    return prefix + "\n\n".join(lines)
 
 
 def visual_images(pack: list[Element], limit: int = 3) -> list[tuple[str, bytes]]:

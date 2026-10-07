@@ -231,7 +231,8 @@ def ask_view(pipe: Pipeline, mode: Mode) -> None:
     res: Result | None = st.session_state.get("last_result")
     if res is not None:
         for e in res.errors:
-            st.caption(f"Notice: {e}")
+            short = str(e)[:120] + "…" if len(str(e)) > 120 else str(e)
+            st.caption(f"⚠️ Notice: {short}")
 
         ui.answer_card(res)
 
