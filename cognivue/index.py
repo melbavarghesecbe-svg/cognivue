@@ -39,6 +39,8 @@ def fastembed_embedder(model: str, cache_dir: str) -> Embedder:
 
 
 def load_embedder(settings, trace: Optional[list] = None) -> tuple[Embedder, str]:
+    if settings.embed_model == "hash":  # explicit offline mode, no model download
+        return hash_embedder, "hash"
     try:
         return fastembed_embedder(settings.embed_model, str(settings.data_dir / "models")), settings.embed_model
     except Exception as e:  # offline with no model downloaded

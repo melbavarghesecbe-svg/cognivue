@@ -106,6 +106,8 @@ class Pipeline:
             return self._refuse(res, reason_, top)
 
         conflicts, agreement = find_conflicts(self.ledger, [x for c in kept for x in c.cites]) if mode.ledger else ([], 0.5)
+        about = (question + " " + " ".join(c.text for c in kept)).lower()
+        conflicts = [c for c in conflicts if all(w in about for w in c.metric.split())]  # only metrics this answer is about
         self._step(res, "triangulate", f"{len(conflicts)} conflicts, agreement {agreement:.2f}",
                    conflicts=[c.metric + " " + c.period for c in conflicts])
         res.answer = self._answer(out, kept, claims, calcs, conflicts, agreement, top)

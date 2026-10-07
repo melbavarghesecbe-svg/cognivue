@@ -47,7 +47,9 @@ copy .env.example .env      # then put your GEMINI_API_KEY in .env
 ```
 
 The first run downloads the bge-small-en-v1.5 ONNX model (about 70 MB) into `data/models/`. If the download fails,
-the index falls back to a hashed bag-of-words embedder and says so in the sidebar status.
+the index falls back to a hashed bag-of-words embedder and says so in the ingest status. On slow networks set
+`EMBED_MODEL=hash` and `MIN_RETRIEVAL_SCORE=0.12` in `.env` (BM25 does most of the work then). The committed
+bench results were produced in this mode.
 
 ## Config (`.env`)
 
