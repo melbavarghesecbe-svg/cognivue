@@ -227,56 +227,25 @@ The interface uses a restrained maroon, ivory, and cream visual system with a ce
 
 ## Screenshots
 
-Add screenshots to `docs/screenshots/` and replace the placeholders below. These images should show the actual running application with representative demo documents loaded.
+The following screenshots show the main evidence, document inspection, and FactLedger capabilities of COGNIVUE.
 
-### Ask — Upload and question workspace
+### Ask — Evidence-backed Answer & ProofGraph
 
-<!-- Screenshot placeholder: docs/screenshots/ask-upload.png -->
-![COGNIVUE Ask view](docs/screenshots/ask-upload.png)
+![COGNIVUE Answer and ProofGraph](cognivue/screenshots/answer-proof.jpeg)
 
-Show the branded Ask page with the upload area, ingestion status, example question selector, and question input.
+Shows an evidence-backed answer with confidence signals, detected conflicts, verified claims, evidence inspection, and the ProofGraph trace connecting the question to supporting evidence.
 
-### Ask — Evidence-backed answer
+### Documents — Document Intelligence & Evidence Workspace
 
-<!-- Screenshot placeholder: docs/screenshots/ask-answer.png -->
-![COGNIVUE evidence-backed answer](docs/screenshots/ask-answer.png)
+![COGNIVUE Documents Overview](cognivue/screenshots/documents-overview.png)
 
-Show a completed answer with citations, modality badges, confidence information, and the answer's evidence references.
+Shows the Documents workspace with page triage and quality information, document thumbnails, indexed corpus details, and multimodal document inspection.
 
-### Numbers with Receipts
+### FactLedger — Normalized Evidence Facts
 
-<!-- Screenshot placeholder: docs/screenshots/calculation-receipt.png -->
-![Calculation receipt](docs/screenshots/calculation-receipt.png)
+![COGNIVUE FactLedger](cognivue/screenshots/factledger.png)
 
-Show the formula, source inputs, document/page/element references, calculated result, and verification status.
-
-### Evidence Viewer and ProofGraph
-
-<!-- Screenshot placeholder: docs/screenshots/evidence-proofgraph.png -->
-![Evidence viewer and ProofGraph](docs/screenshots/evidence-proofgraph.png)
-
-Show the source page or visual evidence together with the trace from question to evidence, calculation, and answer.
-
-### Documents
-
-<!-- Screenshot placeholder: docs/screenshots/documents.png -->
-![COGNIVUE Documents view](docs/screenshots/documents.png)
-
-Show the indexed document list, page-quality information, extracted elements, visual extractions, and FactLedger data.
-
-### Bench
-
-<!-- Screenshot placeholder: docs/screenshots/bench.png -->
-![COGNIVUE benchmark view](docs/screenshots/bench.png)
-
-Show the benchmark controls and measured full-mode or baseline results. Do not add manually typed or unverified scores.
-
-### Trust and refusal states
-
-<!-- Screenshot placeholder: docs/screenshots/trust-signals.png -->
-![COGNIVUE trust signals](docs/screenshots/trust-signals.png)
-
-Show one or more of the implemented trust behaviors: a conflict banner, false-premise correction, grounded refusal, or claim verification status.
+Shows the FactLedger containing normalized facts, periods, values, units, source IDs, modalities, and estimated-value indicators for traceable numerical evidence.
 
 ## Benchmark and Evaluation
 
