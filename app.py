@@ -67,7 +67,7 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
     # Clean SaaS Navigation matching reference design
     active_nav = st.sidebar.radio(
         "Navigation",
-        options=["🔍  Ask", "📄  Documents", "📊  Bench"],
+        options=["Ask", "Documents", "Bench"],
         index=0,
         key="app_navigation",
         label_visibility="collapsed",
@@ -80,7 +80,6 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
         """
         <div style="background:#FFFFFF; border:1px solid #EBE4DC; border-radius:8px; padding:7px 10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:16px;">☁️</span>
                 <div>
                     <div style="font-size:12px; font-weight:600; color:#1E1815;">Upload PDFs</div>
                     <div style="font-size:10px; color:#8C7E75;">PDF up to 200 MB</div>
@@ -102,7 +101,7 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
         ingest_files(pipe, paths)
 
     # Load Demo Documents Button
-    if st.sidebar.button("📄  Load demo documents", use_container_width=True):
+    if st.sidebar.button("Load demo documents", use_container_width=True):
         from scripts.make_demo_docs import OUT, main as make_docs
 
         paths = sorted(OUT.glob("*.pdf")) if len(list(OUT.glob("*.pdf"))) == 4 else make_docs()
@@ -117,7 +116,7 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
             st.sidebar.markdown(
                 f"""
                 <div style="font-size: 12px; color: #332B27; padding: 0.22rem 0; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="display: flex; align-items: center; gap: 5px;">📄 <b>{d['id']}</b> · {d['name']}</span>
+                    <span><b>{d['id']}</b> · {d['name']}</span>
                     <span style="color: #8C7E75; font-size: 11px;">{d['pages']}p</span>
                 </div>
                 """,
@@ -184,7 +183,7 @@ def ask_view(pipe: Pipeline, mode: Mode) -> None:
         "Example queries",
         [""] + EXAMPLES,
         index=0,
-        placeholder="📄 Or select a verified example question...",
+        placeholder="Or select a verified example question...",
         label_visibility="collapsed",
     )
     
@@ -193,18 +192,17 @@ def ask_view(pipe: Pipeline, mode: Mode) -> None:
         q = st.text_input(
             "Ask a question",
             value=ex_choice,
-            placeholder="✨ Ask a question about your documents...",
+            placeholder="Ask a question about your documents...",
             label_visibility="collapsed",
         )
     with col_btn:
-        ask_btn = st.button("➤ Ask", type="primary", use_container_width=True)
+        ask_btn = st.button("Ask", type="primary", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     if not pipe.store.docs():
         st.markdown(
             """
             <div class="upload-dropzone-card">
-                <div class="dropzone-icon">📄</div>
                 <div class="dropzone-title">Upload your documents</div>
                 <div class="dropzone-sub">Drag and drop PDFs here, or click to browse</div>
                 <div class="dropzone-caption">PDF up to 200 MB</div>

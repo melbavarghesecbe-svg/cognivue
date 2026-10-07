@@ -170,7 +170,10 @@ def _figures(page, ctx: PageCtx, llm, settings, ledger, trace) -> list[Element]:
             el.meta["caption"] = vt.title + f" ({vt.unit})"
             ledger.add(facts_from_table(el, [vt.header] + vt.rows, estimated=True, modality="chart"))
         else:
-            el.text = "Chart (data not extracted)"
+            # Keep the crop available for review, but do not present a failed
+            # visual extraction as evidence to retrieval or the reasoner.
+            el.text = ""
+            el.meta["extraction_status"] = "data_not_extracted"
             el.quality = 0.5
         out.append(el)
     return out

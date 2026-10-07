@@ -58,7 +58,7 @@ class Hit:
     id: str
     rrf: float
     dense: float  # cosine similarity 0..1
-    bm25: float
+    bm25: float  # normalized BM25 relevance 0..1
 
 
 class Index:
@@ -104,6 +104,10 @@ class Index:
         for rank, j in enumerate(bm_rank):
             if bm[j] > 0:
                 fused[self.ids[j]] = fused.get(self.ids[j], 0) + 1 / (RRF_K + rank + 1)
-        bm_by_id = {self.ids[j]: float(bm[j]) for j in range(len(self.ids))}
+        max_bm = max((float(score) for score in bm), default=0.0)
+        bm_by_id = {
+            self.ids[j]: (float(bm[j]) / max_bm if max_bm > 0 else 0.0)
+            for j in range(len(self.ids))
+        }
         hits = [Hit(i, s, max(dense_sim.get(i, 0.0), 0.0), bm_by_id.get(i, 0.0)) for i, s in fused.items()]
         return sorted(hits, key=lambda h: -h.rrf)[:k]

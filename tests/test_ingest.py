@@ -38,6 +38,7 @@ def test_annual_report_elements(ingested):
     assert table.meta["caption"].startswith("Table 1")
     fig = next(e for e in els if e.kind == "figure")
     assert fig.id.startswith("D1-p3-F") and fig.image_path
+    assert "data not extracted" not in fig.text.lower()
 
 
 def test_scan_is_triaged_and_ocrd(ingested):

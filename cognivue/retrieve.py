@@ -48,7 +48,7 @@ def build_pack(index: Index, question: str, sub_questions: list[str], k: int, mi
     covered = {index.doc_of[h.id] for h in pack}
     for h in ranked[k:]:
         doc = index.doc_of[h.id]
-        if doc not in covered and h.dense >= min_score:
+        if doc not in covered and max(h.dense, h.bm25) >= min_score:
             pack.append(h)
             covered.add(doc)
     return pack

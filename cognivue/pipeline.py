@@ -74,9 +74,10 @@ class Pipeline:
         hits = build_pack(self.index, question, p.sub_questions, self.settings.top_k, self.settings.min_retrieval_score)
         pack = self.store.get_many([h.id for h in hits])
         res.evidence = pack
-        top = max((h.dense for h in hits), default=0.0)
+        top = max((max(h.dense, h.bm25) for h in hits), default=0.0)
         self._step(res, "retrieve", f"{len(pack)} elements, top score {top:.2f}",
-                   hits=[{"id": h.id, "rrf": round(h.rrf, 4), "dense": round(h.dense, 3)} for h in hits])
+                   hits=[{"id": h.id, "rrf": round(h.rrf, 4), "dense": round(h.dense, 3),
+                          "bm25": round(h.bm25, 3)} for h in hits])
 
         if reason_ := conf.retrieval_gate(top, self.settings.min_retrieval_score):
             return self._refuse(res, reason_, top)
