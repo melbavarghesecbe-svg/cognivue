@@ -253,8 +253,8 @@ def inject_styles() -> None:
 
         .hero-container {
             text-align: center;
-            margin: 0.5rem auto 2.25rem auto;
-            max-width: 800px;
+            margin: 0.5rem auto 1.5rem auto;
+            max-width: 860px;
         }
         .hero-eyebrow-wrapper {
             display: flex;
@@ -275,27 +275,85 @@ def inject_styles() -> None:
             color: #7D716A;
             text-transform: uppercase;
         }
-        .hero-title {
-            font-size: 72px;
+        .hero-brand {
+            font-size: clamp(42px, 5vw, 64px);
             font-weight: 800;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.12em;
             color: #50101C;
-            margin: 0.15rem 0 0.15rem 0;
-            line-height: 1.05;
+            line-height: 1;
+            margin: 0.9rem 0 0.7rem;
+        }
+        .hero-title {
+            font-size: clamp(42px, 5vw, 64px);
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: #50101C;
+            line-height: 1;
+            margin: 0.9rem 0 0.7rem;
         }
         .hero-tagline {
             font-family: 'Playfair Display', Georgia, serif;
             font-style: italic;
-            font-size: 28px;
+            font-size: clamp(22px, 2.2vw, 30px);
             font-weight: 600;
             color: #50101C;
-            margin: 0 0 0.75rem 0;
+            margin: 0 0 0.8rem 0;
         }
         .hero-description {
-            font-size: 14.5px;
+            font-size: 14px;
             color: #6E625E;
             margin: 0;
             line-height: 1.5;
+        }
+
+        .sidebar-workspace-note {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin: 0.2rem 0.25rem 0.9rem;
+            padding: 0.7rem 0.75rem;
+            border: 1px solid #E4D9CF;
+            border-radius: 8px;
+            background: rgba(255, 253, 250, 0.68);
+            color: #6E625E;
+            font-size: 10.5px;
+            line-height: 1.45;
+        }
+        .sidebar-workspace-note strong {
+            color: #50101C;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .hero-upload-card {
+            max-width: 720px;
+            margin: 0 auto 1.25rem;
+            padding: 1.1rem 1.25rem 1rem;
+            text-align: center;
+            background: #FFFDFC;
+            border: 1px solid #DCCFC4;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(80, 16, 28, 0.05);
+        }
+        .hero-upload-title {
+            color: #50101C;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+        .hero-upload-help {
+            color: #8C7E75;
+            font-size: 11px;
+            margin-bottom: 0.7rem;
+        }
+        .hero-upload-card [data-testid="stFileUploader"] {
+            max-width: 560px;
+            margin: 0 auto 0.7rem;
+            text-align: left;
+        }
+        .hero-upload-card [data-testid="stFileUploaderDropzone"] {
+            background: #FAF7F2 !important;
+            border-color: #D6CBC1 !important;
         }
 
         .floating-query-card {

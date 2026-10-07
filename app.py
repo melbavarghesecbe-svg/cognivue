@@ -50,9 +50,25 @@ def ingest_files(pipe: Pipeline, paths: list[Path]) -> None:
         status.update(label=f"Ingested {len(paths)} file(s) · Embedder: {pipe.embed_name}", state="complete")
 
 
-def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
-    s = pipe.settings
+def save_and_ingest_uploads(pipe: Pipeline, uploads) -> None:
+    paths = []
+    for upload in uploads:
+        dest = pipe.settings.data_dir / "uploads" / upload.name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(upload.getvalue())
+        paths.append(dest)
+    ingest_files(pipe, paths)
 
+
+def load_demo_documents(pipe: Pipeline) -> None:
+    from scripts.make_demo_docs import OUT, main as make_docs
+
+    paths = sorted(OUT.glob("*.pdf")) if len(list(OUT.glob("*.pdf"))) == 4 else make_docs()
+    order = ["annual_report.pdf", "operations.pdf", "incident_memo.pdf", "press_release.pdf"]
+    ingest_files(pipe, sorted(paths, key=lambda p: order.index(p.name) if p.name in order else 99))
+
+
+def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
     # Brand Wordmark
     st.sidebar.markdown(
         """
@@ -73,40 +89,14 @@ def render_sidebar(pipe: Pipeline) -> tuple[str, Mode]:
         label_visibility="collapsed",
     )
 
-    st.sidebar.markdown('<div class="sidebar-section-label">DOCUMENTS</div>', unsafe_allow_html=True)
-
-    # Document Upload Area
+    st.sidebar.markdown('<div class="sidebar-section-label">WORKSPACE</div>', unsafe_allow_html=True)
     st.sidebar.markdown(
-        """
-        <div style="background:#FFFFFF; border:1px solid #EBE4DC; border-radius:8px; padding:7px 10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <div>
-                    <div style="font-size:12px; font-weight:600; color:#1E1815;">Upload PDFs</div>
-                    <div style="font-size:10px; color:#8C7E75;">PDF up to 200 MB</div>
-                </div>
-            </div>
-            <span style="color:#8C7E75; font-size:13px; font-weight:600;">›</span>
-        </div>
-        """,
+        '<div class="sidebar-workspace-note">'
+        '<strong>Evidence workspace</strong>'
+        '<span>Search, inspect, and verify your indexed documents.</span>'
+        '</div>',
         unsafe_allow_html=True,
     )
-    ups = st.sidebar.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True, help="PDF up to 200 MB", label_visibility="collapsed")
-    if ups and st.sidebar.button("Ingest uploads", use_container_width=True):
-        paths = []
-        for u in ups:
-            dest = s.data_dir / "uploads" / u.name
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(u.getvalue())
-            paths.append(dest)
-        ingest_files(pipe, paths)
-
-    # Load Demo Documents Button
-    if st.sidebar.button("Load demo documents", use_container_width=True):
-        from scripts.make_demo_docs import OUT, main as make_docs
-
-        paths = sorted(OUT.glob("*.pdf")) if len(list(OUT.glob("*.pdf"))) == 4 else make_docs()
-        order = ["annual_report.pdf", "operations.pdf", "incident_memo.pdf", "press_release.pdf"]
-        ingest_files(pipe, sorted(paths, key=lambda p: order.index(p.name) if p.name in order else 99))
 
     # Ingested Documents List
     docs = pipe.store.docs()
@@ -177,6 +167,31 @@ def ask_view(pipe: Pipeline, mode: Mode) -> None:
         unsafe_allow_html=True,
     )
 
+    st.markdown('<div class="hero-upload-card">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hero-upload-title">Upload documents</div>'
+        '<div class="hero-upload-help">PDF · up to 200 MB per file</div>',
+        unsafe_allow_html=True,
+    )
+    uploads = st.file_uploader(
+        "Upload documents",
+        type="pdf",
+        accept_multiple_files=True,
+        help="PDF up to 200 MB per file",
+        label_visibility="collapsed",
+    )
+    upload_col, demo_col, _ = st.columns([1.25, 1.25, 2.5])
+    with upload_col:
+        ingest_clicked = st.button("Ingest uploads", type="primary", use_container_width=True)
+    with demo_col:
+        demo_clicked = st.button("Load demo documents", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if uploads and ingest_clicked:
+        save_and_ingest_uploads(pipe, uploads)
+    if demo_clicked:
+        load_demo_documents(pipe)
+
     # Question Input Shell - Floating Query Card
     st.markdown('<div class="floating-query-card">', unsafe_allow_html=True)
     ex_choice = st.selectbox(
@@ -200,16 +215,7 @@ def ask_view(pipe: Pipeline, mode: Mode) -> None:
     st.markdown('</div>', unsafe_allow_html=True)
 
     if not pipe.store.docs():
-        st.markdown(
-            """
-            <div class="upload-dropzone-card">
-                <div class="dropzone-title">Upload your documents</div>
-                <div class="dropzone-sub">Drag and drop PDFs here, or click to browse</div>
-                <div class="dropzone-caption">PDF up to 200 MB</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        ui.empty_state("No documents indexed", "Upload a PDF above or load the demo documents to begin asking questions.")
         return
 
     if ask_btn and q:
