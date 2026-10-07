@@ -1,126 +1,154 @@
-# COGNIVUE: evidence-locked multimodal document intelligence
+# COGNIVUE
+### Evidence-Locked Multimodal Document Intelligence
+**See. Understand. Verify.**
 
-Hackathon problem **HNX26PSI01 (Multimodal Document Intelligence)**.
+Real-world documents combine narrative text, tables, charts, images, and scanned pages. COGNIVUE lets users ask questions across mixed PDFs and returns answers grounded in stored document evidence, page-level citations, code-checked calculations, and claim verification.
 
-You upload mixed PDFs (text, tables, charts, scans) and ask complex questions. Every claim and number in an
-answer is traced to a stored element (`D1-p7-F3` = document 1, page 7, figure 3) and **checked by code
-before it is shown**. If there is no evidence, the app refuses.
+## Key Features
 
-## How it works
+- Multimodal PDF processing for native text, tables, embedded figures, and scanned pages.
+- Page triage with native, mixed, and scan classification plus quality scores.
+- ChartLens visual extraction for chart images, with estimated values clearly marked.
+- OCR processing for scanned pages using OpenCV cleanup and RapidOCR.
+- Hybrid retrieval using dense embeddings, ChromaDB, BM25, and reciprocal rank fusion.
+- Cross-document evidence packs that preserve document, page, element, and bounding-box references.
+- FactLedger storage for normalized numeric facts from tables and text.
+- Python-side calculations with validated inputs and calculation receipts.
+- Claim verification for evidence IDs, quoted text, source numbers, and entailment.
+- Conflict detection, confidence scoring, premise checks, and grounded refusal when evidence is insufficient.
+- Streamlit views for asking questions, inspecting documents, and running the benchmark.
 
+## How It Works
+
+```text
+Documents
+    -> PDF processing
+    -> Text, table, chart, and scan extraction
+    -> Element Store and FactLedger
+    -> Dense + BM25 retrieval
+    -> Question planning and multimodal reasoning
+    -> Python calculations and claim verification
+    -> Evidence-backed answer with citations
 ```
-PDF ─► ingest ─► Element store (SQLite: doc, page, bbox, section)   page PNGs + triage (native/mixed/scan, quality)
-         │         ├─ text blocks + headings (PyMuPDF)
-         │         ├─ tables (pdfplumber; VLM fallback if ragged)
-         │         ├─ charts ─► ChartLens (VLM → data table, marked "estimated")
-         │         └─ scans ─► OpenCV cleanup ─► rapidocr ─► VLM transcription if OCR is weak
-         └─► FactLedger (SQLite: metric, period, value, unit, source; lakh/crore aware)
 
-question ─► planner (sub-questions + premises) ─► hybrid retrieval (bge-small/Chroma + BM25, RRF, ≥1 hit per relevant doc)
-         ─► Premise Guard (ledger) ─► Reasoner: one multimodal call, strict JSON, chart/table crops re-attached
-         ─► calc.py (ast-whitelisted, no eval) ─► Verifier / Truth Meter (ID, number-in-source, quote, batched entailment)
-         ─► triangulation and conflicts (ledger) ─► confidence ─► answer card + receipts + ProofGraph
-```
+1. **Process** — PyMuPDF and pdfplumber extract page content, tables, images, and metadata. Scanned pages are cleaned and OCR-processed.
+2. **Store** — Elements, page quality information, document metadata, and normalized facts are persisted in SQLite. Page images and visual crops are retained for inspection.
+3. **Retrieve** — A dense ChromaDB index and BM25 index are combined with reciprocal rank fusion.
+4. **Reason** — Gemini receives the question and retrieved evidence, including relevant table or chart crops when visual re-checking is enabled.
+5. **Verify** — Python evaluates permitted calculations. Claims are checked against evidence IDs, source numbers, quotes, and model-based entailment.
+6. **Answer** — The UI shows the answer, citations, confidence information, receipts, conflicts, and the evidence trace, or refuses when support is inadequate.
 
-Hard rules, enforced in code:
+## Tech Stack
 
-| Rule | Where |
+| Area | Technology |
 |---|---|
-| Cite only element IDs from the evidence pack. Doc, page and bbox always come from the store | `verify.code_checks`, `store.py` |
-| The LLM never does arithmetic. It returns variables and expressions, and Python evaluates them | `reasoner.py`, `calc.py` |
-| Inputs must appear in the cited source | `pipeline._calculate` → `verify.number_supported` |
-| Chart and table crops go to the VLM at query time, and the trace records it | `reasoner.visual_images`, trace `reason.relook` |
-| Chart values are always "estimated" (−0.10 confidence) | `Fact.estimated`, `Claim.estimated`, `confidence.py` |
-| Every model call goes through `llm.py`: disk cache, temperature 0, retry, fallback model, JSON validation, `CACHE_ONLY` | `llm.py` |
-| Conflicts show both sources and never pick one silently. Confidence is capped at 0.6 | `conflicts.py`, `confidence.py` |
-| Refusal: low retrieval score, insufficient evidence, false premise, nothing verified | `confidence.py` gates, `conflicts.premise_violations` |
+| Language | Python 3.10+ |
+| Framework and UI | Streamlit |
+| PDF processing | PyMuPDF (`fitz`), pdfplumber |
+| Scans and OCR | OpenCV, RapidOCR |
+| Retrieval | ChromaDB, rank-bm25, reciprocal rank fusion |
+| Embedding model | FastEmbed with `BAAI/bge-small-en-v1.5` by default; deterministic hash embeddings are available as an offline fallback |
+| LLM/VLM | Google Gemini through the `google-genai` SDK |
+| Database | SQLite |
+| Validation and configuration | Pydantic, pydantic-settings, python-dotenv |
+| Supporting libraries | NumPy, Pillow, Matplotlib, Graphviz |
+| Testing | pytest |
 
-Confidence = 0.30·retrieval + 0.30·verified ratio + 0.20·agreement + 0.20·page quality,
-minus 0.10 if a chart estimate is used, and capped at 0.6 when there is a conflict.
+## Installation
 
-## Install (Windows, Python 3.10+)
+Windows PowerShell:
 
 ```powershell
+git clone https://github.com/melbavarghesecbe-svg/cognivue.git
+cd cognivue
 py -3.10 -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.txt
-copy .env.example .env      # then put your GEMINI_API_KEY in .env
 ```
 
-The first run downloads the bge-small-en-v1.5 ONNX model (about 70 MB) into `data/models/`. If the download fails,
-the index falls back to a hashed bag-of-words embedder and says so in the ingest status. On slow networks set
-`EMBED_MODEL=hash` and `MIN_RETRIEVAL_SCORE=0.12` in `.env` (BM25 does most of the work then). The committed
-bench results were produced in this mode.
+## Configuration
 
-## Config (`.env`)
+Create a local environment file from the provided template:
 
-| Key | Default | Meaning |
-|---|---|---|
-| `GEMINI_API_KEY` | (empty) | Google AI Studio key |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | primary model |
-| `GEMINI_FALLBACK_MODEL` | `gemini-2.0-flash` | used after retries fail |
-| `CACHE_ONLY` | `0` | `1` = never call the network; cache misses become soft refusals |
+```powershell
+copy .env.example .env
+```
+
+Set `GEMINI_API_KEY` in `.env` for Gemini planning, reasoning, chart analysis, table fallback extraction, and scan transcription. Do not commit `.env`.
+
+Important settings include:
+
+| Setting | Purpose |
+|---|---|
+| `GEMINI_MODEL` | Primary Gemini model |
+| `GEMINI_FALLBACK_MODEL` | Fallback Gemini model |
+| `CACHE_ONLY` | Prevents network calls and uses cached model responses only |
+| `EMBED_MODEL` | FastEmbed model name, or `hash` for deterministic offline embeddings |
+| `MIN_RETRIEVAL_SCORE` | Retrieval refusal threshold |
+
+The application creates its local database, page-image directory, model cache, and ChromaDB directory under `data/` as needed.
 
 ## Run
+
+Start the Streamlit application:
 
 ```powershell
 .venv\Scripts\streamlit run app.py
 ```
-In the sidebar, click **Load demo documents** (or upload PDFs), then ask a question in the **Ask** tab.
 
-## Reproduce (offline)
+In the Ask view:
+
+1. Upload one or more PDFs.
+2. Click **Ingest uploads**.
+3. Choose an example question or enter your own.
+4. Click **Ask**.
+
+The **Documents** view exposes page quality, visual extractions, and FactLedger data. The **Bench** view runs the labelled evaluation set in full and baseline modes.
+
+## Reproduce the Demonstration
+
+The repository includes four generated demo PDFs covering text, tables, charts, a scanned memo, and a planted cross-document revenue conflict.
+
+To regenerate the demo documents:
 
 ```powershell
-python scripts\make_demo_docs.py          # 4 demo PDFs → demo_docs/ (also committed)
-python scripts\warm_cache.py              # with API key: ingest + run the bench, fills cache/llm/
-$env:CACHE_ONLY=1; python scripts\warm_cache.py   # offline replay from the committed cache
-.venv\Scripts\python -m pytest -q         # all tests run offline
+.venv\Scripts\python scripts\make_demo_docs.py
 ```
 
-Demo set:
+To ingest the demos and run the full and baseline benchmark:
 
-* **D1** `annual_report.pdf`: text, financial table, quarterly revenue bar chart without labels
-* **D2** `operations.pdf`: plant table with Indian digit grouping (`1,20,000`)
-* **D3** `incident_memo.pdf`: image-only, noisy and skewed scanned memo
-* **D4** `press_release.pdf`: **planted conflict** (revenue Rs 1,480 crore vs Rs 1,450 crore in D1)
-
-## Sample input / output
-
-**Q:** *By what percentage did revenue grow from FY23 to FY24 according to the annual report?*
-
-```
-Answer: Revenue grew 19.8% from Rs 1,210 crore in FY23 to Rs 1,450 crore in FY24.   [table]
-  🟢 claim  cites D1-p2-T1  (quote "1,450")
-  Receipt:  growth = pct_change(a, b)   a=1.21e10 (D1-p2-T1)  b=1.45e10 (D1-p2-T1)  → 19.83
-  Confidence 0.8x · ProofGraph: Q → sub-questions → D1-p2-T1 → reasoner → calc → claim → answer
+```powershell
+.venv\Scripts\python scripts\warm_cache.py
 ```
 
-**Q:** *Why did FY24 revenue fall to Rs 900 crore?* → **Refused. False premise.** The documents show
-1,450 (D1-p2-T1) and Rs 1,480 crore (D4-p1-X…).
+This command uses the configured Gemini key when cache entries are missing and writes benchmark output to `bench/results.json`.
 
-## Bench
+For an offline replay, use existing cached responses:
 
-The **Bench** tab (or `scripts/warm_cache.py`) runs 25 labelled questions: text, table, chart, scan, math,
-cross-doc, false premise and unanswerable. It reports answer, citation, numeric and refusal accuracy for COGNIVUE versus a
-**baseline** with the ledger, visual re-look and verifier switched off. The results are written to `bench/results.json`.
-
-## Scope
-
-**MVP (built):** everything above.
-
-**Stretch / not built:** a general chart detector (charts are found as embedded images), ChartLens for vector-drawn
-charts, table-of-tables layouts, chat history, auth, summariser, reranker model, handwriting, non-English OCR,
-documents over 100 pages.
-
-## Layout
-
+```powershell
+$env:CACHE_ONLY = "1"
+.venv\Scripts\python scripts\warm_cache.py
 ```
-app.py                Streamlit UI (Ask / Documents / Bench)
-cognivue/schema.py    Element, Fact, Claim, Calc, Conflict, Answer, Result
-cognivue/llm.py       the only model gateway
-cognivue/ingest/      pdf.py, triage.py, scans.py, visual.py (ChartLens), textfacts.py
-cognivue/store.py     element store      cognivue/ledger.py  FactLedger
-cognivue/index.py     hybrid index       cognivue/retrieve.py planner + evidence pack
-cognivue/reasoner.py  cognivue/calc.py   cognivue/verify.py  cognivue/conflicts.py  cognivue/confidence.py
-cognivue/pipeline.py  cognivue/proofgraph.py  cognivue/ui.py  cognivue/bench.py
-bench/questions.json  scripts/  tests/
+
+Run the automated tests with:
+
+```powershell
+.venv\Scripts\python -m pytest -q
+```
+
+## Repository Layout
+
+```text
+app.py                 Streamlit application and view routing
+cognivue/ingest/       PDF, table, chart, scan, OCR, and triage processing
+cognivue/store.py      SQLite document, page, element, and fact store
+cognivue/index.py      Dense and BM25 hybrid index
+cognivue/retrieve.py   Question planning and evidence-pack assembly
+cognivue/reasoner.py   Structured multimodal reasoning
+cognivue/calc.py       Safe calculation evaluation
+cognivue/verify.py     Claim and number verification
+cognivue/pipeline.py   End-to-end question pipeline
+cognivue/ui.py         Streamlit design system and result views
+bench/                 Labelled benchmark questions and generated results
+scripts/               Demo document generation and cache warming
+tests/                 Ingestion and pipeline tests
 ```
